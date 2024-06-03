@@ -1,10 +1,13 @@
 package org.cbioportal.persistence.mybatisclickhouse;
 
 import org.cbioportal.model.AlterationFilter;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.MutationEventType;
 import org.cbioportal.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.persistence.mybatisclickhouse.config.MyBatisConfig;
 import org.cbioportal.web.parameter.CategorizedClinicalDataCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +18,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +36,7 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
     
     private static final String STUDY_TCGA_PUB = "study_tcga_pub";
     private static final String STUDY_ACC_TCGA = "acc_tcga";
+    private static final String TEST_ATTRIBUTE_ID = "test_attribute_id";
     
     @Autowired
     private StudyViewMapper studyViewMapper;
@@ -97,6 +102,36 @@ public class StudyViewMapperTest extends AbstractTestcontainers {
             CategorizedClinicalDataCountFilter.getBuilder().build(), false,
             AlterationFilterHelper.build(onlyMutationStatusFilter));
         assertEquals(1, alterationCountByGenes2.size()); 
+    }
+
+    @Test
+    public void fetchClinicalDataCounts() {
+        // ClinicalDataCountFilter clinicalDataCountFilter = new ClinicalDataCountFilter(); // This is unused in current controller
+
+        // ClinicalDataCountFilter interceptedClinicalDataCountFilter = new ClinicalDataCountFilter();
+        // ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
+        // clinicalDataFilter.setAttributeId(TEST_ATTRIBUTE_ID);
+        // interceptedClinicalDataCountFilter.setAttributes(Arrays.asList(clinicalDataFilter));
+
+
+        // List<String> involvedCancerStudies = new ArrayList<>();
+        // involvedCancerStudies.add("472"); // Unsure if this is right
+
+
+        List<String> attributeIds = Arrays.asList(TEST_ATTRIBUTE_ID);
+        List<String> filteredAttributeValues = Arrays.asList("sex");
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+        // public List<ClinicalDataCount> getClinicalDataCounts(StudyViewFilter studyViewFilter, CategorizedClinicalDataCountFilter categorizedClinicalDataCountFilter, List<String> filteredAttributes) {
+        var clinicalDataCounts = studyViewMapper.getClinicalDataCounts(studyViewFilter, 
+            CategorizedClinicalDataCountFilter.getBuilder().build(), 
+            false, attributeIds, filteredAttributeValues);
+        for (ClinicalDataCount clinicalDataCount : clinicalDataCounts) {
+            System.out.println(clinicalDataCount);
+        }
+        assertEquals(0, clinicalDataCounts.size());
+
     }
 
 }
